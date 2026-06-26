@@ -52,17 +52,27 @@ function App() {
 
     } else {
 
-      // temporary edit logic (backend update later)
-      const updatedExpenses = expenses.map((expense) =>
-        expense._id === editId
-          ? { ...expense, ...expenseData }
-          : expense
-      );
+fetch(`http://localhost:5050/api/expenses/${editId}`, {
+  method:"PUT",
+  headers:{
+    "Content-Type":"application/json"
+  },
+  body:JSON.stringify(expenseData)
+})
+.then(res=>res.json())
+.then((updatedExpense)=>{
 
-      setExpenses(updatedExpenses);
-      setEditId(null);
-    }
+  setExpenses(
+    expenses.map((expense)=>
+      expense._id === editId
+      ? updatedExpense
+      : expense
+    )
+  );
 
+  setEditId(null);
+
+});
 
     setTitle("");
     setAmount("");
@@ -79,17 +89,19 @@ function App() {
     setDate(expense.date);
   };
 
+const deleteExpense = (id) => {
 
-  const deleteExpense = (id) => {
+fetch(`http://localhost:5050/api/expenses/${id}`, {
+  method:"DELETE"
+})
+.then(res=>res.json())
+.then(()=>{
+  setExpenses(
+    expenses.filter((expense)=>expense._id !== id)
+  );
+});
 
-    // temporary delete from UI
-    const updatedExpenses = expenses.filter(
-      (expense) => expense._id !== id
-    );
-
-    setExpenses(updatedExpenses);
-
-  };
+};
 
 
   const total = expenses.reduce(
